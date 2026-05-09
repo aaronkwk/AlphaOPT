@@ -119,7 +119,7 @@ Suggested decision order:
 Step 4: Record the insight_id and the assigned label. Cite concrete evidence from the problem description and diagnosed issues, and justify the labeling. **Clearly explain the mapping between each insight and the formulation issues.**
 
 ### STRICT OUTPUT FORMAT
-**Return only a JSON array** of your answer in Step 4. Each array element must be an object with keys `"insight_id"` (integer), `"state"`("postive" or "negative") and `"evidence"` (string).
+**Return only a JSON array** of your answer in Step 4. Each array element must be an object with keys `"insight_id"` (integer), `"state"`("positive" or "negative") and `"evidence"` (string).
 
 Example:
 

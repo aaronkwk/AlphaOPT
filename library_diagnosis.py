@@ -345,6 +345,9 @@ def run_library_diagnosis(
                             if ins.insight_id in insights_diag.keys():
                                 # Deduplicate {insight_id: unretrieved}
                                 state = insights_diag[ins.insight_id]
+                                state = "positive" if state == "postive" else state
+                                if state not in ins.distribution:
+                                    continue
                                 if task.id not in ins.distribution[state]:
                                     ins.distribution[state].append(task.id)
 
@@ -879,7 +882,7 @@ if __name__ == "__main__":
                                 taxonomy_path = f"{config.file_paths.lib_dir}/latest_taxonomy_iter{start_iter-1}.json")
 
     # Track iteration metrics
-    with open(config.file_paths.metrics_log_path, "r") as f:
+    with open(config.file_paths.metrics_log_path, "r", encoding="utf-8") as f:
         metrics_log = json.load(f)
 
     # Run subset

@@ -3,7 +3,7 @@ data_path_template:  ./data/optimization_tasks/split/test_data/${dataset}_test.j
 # library_path:  ./data/experience_library/iterations/train_data_all_explore_4o/library_refine_iter4.json
 library_path: ./data/experience_library/library.json
 output_folder_template: ${dataset}_raw_4o
-model: openai/gpt-4o 
+model: openai/gpt-oss-120b:free 
 service: openrouter # null
 n_runs: 3
 temperature: 0.0

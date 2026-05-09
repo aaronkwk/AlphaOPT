@@ -376,7 +376,7 @@ if __name__ == "__main__":
     )
 
     # Track iteration metrics
-    with open(config.file_paths.metrics_log_path, "r") as f:
+    with open(config.file_paths.metrics_log_path, "r", encoding="utf-8") as f:
         metrics_log = json.load(f)
 
     last_metrics = metrics_log[-1]

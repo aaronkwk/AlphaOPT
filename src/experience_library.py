@@ -154,7 +154,7 @@ class ExperienceLibrary:
         """
         if not os.path.isfile(library_path):
             raise FileNotFoundError(library_path)
-        with open(library_path, "r") as f:
+        with open(library_path, "r", encoding="utf-8") as f:
             data = json.load(f)     # Data is a list[dict]
 
         inst = cls(insight_list=data)

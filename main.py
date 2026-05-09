@@ -62,7 +62,7 @@ def main():
                         library_path = lib_path,
                         taxonomy_path = taxo_path)
         # Track iteration metrics
-        with open(config.file_paths.metrics_log_path, "r") as f:
+        with open(config.file_paths.metrics_log_path, "r", encoding="utf-8") as f:
             metrics_log = json.load(f)
 
     # Run subset
