@@ -6,7 +6,7 @@ base_service: openrouter # null for direct API calls
 advanced_service: openrouter
 verbose: false
 start_iter: 0
-data_slice: 
+data_slice: [0, 10]
 
 # API Keys
 api_keys:

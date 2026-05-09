@@ -560,8 +560,9 @@ def execute_code(code_str, timeout_sec=400):
         result = subprocess.run(
             [sys.executable, "-u", "-"],
             input=code_str,
-            text=True, 
-            capture_output=True, 
+            text=True,
+            encoding="utf-8",
+            capture_output=True,
             check=True,
             timeout=timeout_sec # Set the maximum run time
         )
