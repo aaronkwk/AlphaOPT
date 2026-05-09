@@ -1,0 +1,486 @@
+[
+    {
+        "task_id": "A109",
+        "description": "A zookeeper feeds a gorilla with bananas and mangoes. Each banana contains 80 calories, 20 grams of potassium, and 10 grams of sugar. Each mango contains 100 calories, 15 grams of potassium, and 8 grams of sugar.  The gorilla must consume at least 4000 calories and 150 grams of potassium. Since the gorilla prefers bananas, at most 33% of the fruits he eats can be mangoes. If excess sugar makes the gorilla aggressive, how many of each fruit should he consume to minimize his sugar intake?",
+        "ground_truth": 440.0,
+        "formulation": null,
+        "correct_program": "def optimize_gorilla_fruits():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"GorillaFruits\")\n\n    # Decision variables: number of bananas and mangoes\n    x_b = m.addVar(name=\"Bananas\", lb=0, vtype=GRB.INTEGER)\n    x_m = m.addVar(name=\"Mangoes\", lb=0, vtype=GRB.INTEGER)\n\n    # Set the objective: minimize total sugar intake\n    m.setObjective(10 * x_b + 8 * x_m, GRB.MINIMIZE)\n\n    # Add calorie constraint\n    m.addConstr(80 * x_b + 100 * x_m >= 4000, name=\"Calories\")\n    # Add potassium constraint\n    m.addConstr(20 * x_b + 15 * x_m >= 150, name=\"Potassium\")\n    # Add preference constraint (x_b >= 2 * x_m)\n    m.addConstr(x_b >= 2 * x_m, name=\"Preference\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the minimum sugar intake\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n\n# Example usage\nprint(optimize_gorilla_fruits())",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "MILP",
+                "industry_sector": "Animal Care",
+                "reason": "The problem involves allocating two types of fruits (resources) to meet nutritional requirements while minimizing sugar intake. The decision variables are integers, and the objective function and constraints are linear, classifying it as a Mixed-Integer Linear Program. The application sector is specific to animal feeding in a zoo context."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A149",
+        "description": "A toy store hires seasonal and full-time volunteers to deliver gifts and gives them points for service. A seasonal volunteer can deliver 5 gifts and gets 2 points. A full-time volunteer can deliver 8 gifts and gets 5 points. The store can only give out 200 points. In addition, a maximum of 30% of the volunteers can be seasonal and at least 10 must be full-time. How many of each volunteer is needed to maximize the total number of gifts that can be delivered?",
+        "ground_truth": 342.0,
+        "formulation": null,
+        "correct_program": "def optimize_volunteers():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"VolunteerOptimization\")\n\n    # Decision variables\n    S = m.addVar(vtype=GRB.INTEGER, name=\"Seasonal\")\n    F = m.addVar(vtype=GRB.INTEGER, name=\"FullTime\")\n\n    # Set objective: maximize total gifts\n    m.setObjective(5 * S + 8 * F, GRB.MAXIMIZE)\n\n    # Add constraints\n    # Points constraint\n    m.addConstr(2 * S + 5 * F <= 200, name=\"PointsLimit\")\n    # Seasonal volunteers limit (7S <= 3F)\n    m.addConstr(7 * S <= 3 * F, name=\"SeasonalLimit\")\n    # Minimum full-time volunteers\n    m.addConstr(F >= 10, name=\"MinFullTime\")\n    # Non-negativity is implicit in variable definitions\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the maximum total gifts delivered\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    max_gifts = optimize_volunteers()\n    if max_gifts is not None:\n        print(f\"Maximum Gifts Delivered: {max_gifts}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "MILP",
+                "industry_sector": "Retail",
+                "reason": "The problem involves allocating two types of volunteers (resources) to maximize gifts delivered, subject to constraints on points, volunteer mix, and minimum full-time volunteers. Since decision variables (number of volunteers) must be integers and the objective and constraints are linear, it falls under Mixed-Integer Linear Programming. The context of a toy store delivering gifts places it in the retail sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A213",
+        "description": "A restaurant has two combos available to their customers, an original and an experimental meal. The original meal typically generates 20 units of food waste and 45 units of wrapping waste and takes 10 minutes to cook. In comparison, the experimental meal generates 25 units of food waste and 35 units of wrapping waste and takes 15 minutes to cook. The restaurant can have at most 900 units of wrapping waste and can have at most 800 units of food waste as regulated by the government. How many of each combo should be pushed for by the waiting staff to minimize the cooking time?",
+        "ground_truth": 0.0,
+        "formulation": null,
+        "correct_program": "def optimize_meals(\n    max_food_waste=800,\n    max_wrapping_waste=900,\n    time_original=10,\n    time_experimental=15,\n    food_waste_original=20,\n    food_waste_experimental=25,\n    wrapping_waste_original=45,\n    wrapping_waste_experimental=35\n):\n    import gurobipy as gp\n    from gurobipy import GRB\n\n    # Create a new model\n    model = gp.Model(\"RestaurantMealOptimization\")\n\n    # Decision variables: number of original and experimental meals\n    x = model.addVar(vtype=GRB.INTEGER, name=\"Original\")\n    y = model.addVar(vtype=GRB.INTEGER, name=\"Experimental\")\n\n    # Set objective: minimize total cooking time\n    model.setObjective(\n        time_original * x + time_experimental * y,\n        GRB.MINIMIZE\n    )\n\n    # Add waste constraints\n    model.addConstr(\n        food_waste_original * x + food_waste_experimental * y <= max_food_waste,\n        name=\"FoodWasteLimit\"\n    )\n    model.addConstr(\n        wrapping_waste_original * x + wrapping_waste_experimental * y <= max_wrapping_waste,\n        name=\"WrappingWasteLimit\"\n    )\n\n    # Set non-negativity constraints (implicit in variable definition)\n    # Solve the model\n    model.optimize()\n\n    # Check if a feasible solution was found\n    if model.status == GRB.OPTIMAL:\n        # Return the optimal total cooking time\n        return model.objVal\n    else:\n        # No feasible solution\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_time = optimize_meals()\n    if min_time is not None:\n        print(f\"Minimum Total Cooking Time: {min_time}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Hospitality",
+                "reason": "The problem involves allocating resources (food waste, wrapping waste) to produce different products (meals) to minimize an objective (cooking time). The decision variables (number of meals) must be integers, leading to an Integer Programming (IP) model. The application is clearly within the hospitality sector, specifically a restaurant."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A218",
+        "description": "A candle-making company can move their inventory of candles using freight and air. Freight can transport 5 tons per trip while using air can transport 3 tons per trip. Since freight take longer, the cost for each freight trip is $300 while the cost over air for each trip is $550. The company needs to transport at least 200 tons of candles and they have a budget of $20000. Additionally, due to some urgent orders, at least 30% of tons of candles must be transported through air. There must also be at least 5 trips through freight. How many of trip by each should be scheduled to minimize the total number of trips?",
+        "ground_truth": 48.0,
+        "formulation": null,
+        "correct_program": "def optimize_candle_transport():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"Candle_Transport\")\n\n    # Decision variables\n    # Number of freight trips (F), at least 5\n    F = m.addVar(vtype=GRB.INTEGER, name=\"F\", lb=5)\n    # Number of air trips (A), at least 0\n    A = m.addVar(vtype=GRB.INTEGER, name=\"A\", lb=0)\n\n    # Set objective: minimize total trips\n    m.setObjective(F + A, GRB.MINIMIZE)\n\n    # Add constraints\n    # Total tons transported\n    m.addConstr(5 * F + 3 * A >= 200, name=\"TotalTons\")\n    # Budget constraint\n    m.addConstr(300 * F + 550 * A <= 20000, name=\"Budget\")\n    # Air transportation proportion constraint\n    # A >= (1.5/2.1)*F\n    m.addConstr(A >= (1.5 / 2.1) * F, name=\"AirProportion\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        total_trips = m.objVal\n        return total_trips\n    else:\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_trips = optimize_candle_transport()\n    if min_trips is not None:\n        print(f\"Minimum Total Trips (Freight + Air): {min_trips}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "MILP",
+                "industry_sector": "Logistics",
+                "reason": "The problem involves allocating resources (freight and air trips) to transport candles while satisfying various constraints (total tons, budget, air proportion, minimum freight trips) and minimizing the total number of trips. The solver uses integer variables and linear constraints, making it a Mixed-Integer Linear Program."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A185",
+        "description": "A fashion company sells regular handbags and premium handbags made of higher quality material. They can sell regular handbags at a profit of $30 each and premium handbags at a profit of $180 each. The total monthly cost of manufacturing is $200 per regular handbag and $447 per premium handbag. The company has a total budget of $250000 and can sell at most 475 handbags of either type per month. How many of each handbag should they sell to maximize its monthly profit?",
+        "ground_truth": 85500.0,
+        "formulation": null,
+        "correct_program": "def optimize_handbags(\n    profit_regular=30,\n    profit_premium=180,\n    cost_regular=200,\n    cost_premium=447,\n    total_budget=250000,\n    max_total_handbags=475\n):\n    import gurobipy as gp\n    from gurobipy import GRB\n\n    # Create a new model\n    model = gp.Model(\"Handbag_Production_Optimization\")\n\n    # Decision variables: number of regular and premium handbags\n    x = model.addVar(vtype=GRB.INTEGER, name=\"Regular_Handbags\", lb=0)\n    y = model.addVar(vtype=GRB.INTEGER, name=\"Premium_Handbags\", lb=0)\n\n    # Set objective: maximize profit\n    model.setObjective(profit_regular * x + profit_premium * y, GRB.MAXIMIZE)\n\n    # Add budget constraint\n    model.addConstr(cost_regular * x + cost_premium * y <= total_budget, \"BudgetConstraint\")\n\n    # Add total handbags constraint\n    model.addConstr(x + y <= max_total_handbags, \"TotalHandbagsConstraint\")\n\n    # Optimize the model\n    model.optimize()\n\n    # Check if a feasible solution was found\n    if model.status == GRB.OPTIMAL:\n        # Return the maximum profit\n        return model.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    max_profit = optimize_handbags()\n    if max_profit is not None:\n        print(f\"Maximum Profit: ${max_profit}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Manufacturing",
+                "reason": "The problem involves allocating limited resources (budget, total production capacity) to maximize profit from producing two types of handbags. The decision variables (number of handbags) must be integers, leading to an Integer Programming (IP) model. The application is clearly within the manufacturing sector, specifically fashion manufacturing."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A041",
+        "description": "A new fast food place makes wraps and platters. Each wrap requires 5 units of meat and 3 units of rice. Each platter requires 7 units of meant and 5 units of rice. While each wrap takes 10 minutes to make, each platter takes 8 minutes to make. The fast food place must use at least 3000 units of meat and 2500 units of rice. Since wraps are easier to eat on the go, at least 3 times as many wraps need to be made as platter. How many of each should the fast food place make to minimize the total production time?",
+        "ground_truth": 6794.0,
+        "formulation": null,
+        "correct_program": "def optimize_wraps_and_platters():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"FastFoodProduction\")\n\n    # Decision variables: number of wraps (x) and platters (y)\n    x = m.addVar(vtype=GRB.INTEGER, name=\"wraps\", lb=0)\n    y = m.addVar(vtype=GRB.INTEGER, name=\"platters\", lb=0)\n\n    # Set objective: minimize total production time\n    m.setObjective(10 * x + 8 * y, GRB.MINIMIZE)\n\n    # Add resource constraints\n    m.addConstr(5 * x + 7 * y >= 3000, name=\"meat_constraint\")\n    m.addConstr(3 * x + 5 * y >= 2500, name=\"rice_constraint\")\n\n    # Add production ratio constraint\n    m.addConstr(x - 3 * y >= 0, name=\"wraps_vs_platters\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal total production time\n        return m.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_time = optimize_wraps_and_platters()\n    if min_time is not None:\n        print(f\"Minimum Total Production Time: {min_time}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Production Planning",
+                "modeling_type": "IP",
+                "industry_sector": "Food Service",
+                "reason": "The problem involves determining the optimal quantities of two products (wraps and platters) to produce given resource constraints (meat, rice, and production time) and a production ratio, which is characteristic of Production Planning. The decision variables (number of wraps and platters) must be integers, and the objective function and constraints are linear, making it an Integer Program (IP). The application is clearly within the Food Service industry, specifically a fast food establishment."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A052",
+        "description": "A laundromat can buy two types of washing machines, a top-loading model and a front-loading model. The top-loading model can wash 50 items per day while the front-loading model can wash 75 items per day. The top-loading model consumes 85 kWh per day while the front-loading model consumes 100 kWh per day. The laundromat must be able to wash at least 5000 items per day and has available 7000 kWh per day. Since the top-loading machine are harder to use, at most 40% of the machines can be top-loading. Further, at least 10 machines should be front-loading. How many of each machine should the laundromat buy to minimize the total number of washing machines?",
+        "ground_truth": 67.0,
+        "formulation": null,
+        "correct_program": "def optimize_washing_machines():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"Laundromat Machine Optimization\")\n    \n    # Decision variables: number of machines\n    x = m.addVar(vtype=GRB.INTEGER, name=\"TopLoading\")\n    y = m.addVar(vtype=GRB.INTEGER, name=\"FrontLoading\")\n    \n    # Set the objective: minimize total number of machines\n    m.setObjective(x + y, GRB.MINIMIZE)\n    \n    # Add constraints\n    # Washing capacity constraint\n    m.addConstr(50 * x + 75 * y >= 5000, \"WashingCapacity\")\n    # Energy consumption constraint\n    m.addConstr(85 * x + 100 * y <= 7000, \"EnergyLimit\")\n    # Top-loading proportion constraint (transformed to linear form)\n    m.addConstr(3 * x <= 2 * y, \"TopLoadingProportion\")\n    # Minimum front-loading machines\n    m.addConstr(y >= 10, \"MinFrontLoading\")\n    # Non-negativity is implicit in variable definition\n    \n    # Optimize the model\n    m.optimize()\n    \n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal total number of machines\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_machines = optimize_washing_machines()\n    if min_machines is not None:\n        print(f\"Minimum Total Number of Machines: {min_machines}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "MILP",
+                "industry_sector": "Service",
+                "reason": "The problem involves allocating a limited budget of resources (washing capacity, energy, and machine types) to minimize the total number of machines. The solver uses integer variables and linear constraints, making it a Mixed-Integer Linear Program."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A105",
+        "description": "A woman eats cashews and almonds to get her calorie and protein intake. A serving of almonds contains 200 calories and 20 grams of protein. A serving of cashews contains 300 calories and 25 grams of protein. The woman decides to eat at least twice as many servings of almonds as cashews. Furthermore, a serving of almonds contains 15 grams of fat while a serving of cashews contains 12 grams of fat. If the woman needs to consume at least 10000 calories and 800 grams of protein this week, how many servings of each should she eat to minimize her fat intake?",
+        "ground_truth": 600.0,
+        "formulation": null,
+        "correct_program": "def optimize_nut_intake():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"nut_intake_min_fat\")\n\n    # Decision variables: servings of almonds and cashews\n    x_A = m.addVar(name=\"almond_servings\", lb=0)\n    x_C = m.addVar(name=\"cashew_servings\", lb=0)\n\n    # Set the objective: minimize total fat intake\n    m.setObjective(15 * x_A + 12 * x_C, GRB.MINIMIZE)\n\n    # Add constraints\n    # Calorie constraint\n    m.addConstr(200 * x_A + 300 * x_C >= 10000, name=\"calories\")\n    # Protein constraint\n    m.addConstr(20 * x_A + 25 * x_C >= 800, name=\"protein\")\n    # Servings ratio constraint\n    m.addConstr(x_A >= 2 * x_C, name=\"ratio\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal value of the objective function\n        return m.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_fat = optimize_nut_intake()\n    if min_fat is not None:\n        print(f\"Minimum Total Fat Intake: {min_fat}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "LP",
+                "industry_sector": "Health",
+                "reason": "The problem involves allocating servings of different nuts (resources) to meet nutritional requirements while minimizing fat intake. The objective function and all constraints are linear, and decision variables are continuous, making it a Linear Program. The application directly relates to dietary planning and nutritional goals, fitting within the health sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A216",
+        "description": "A lighting company has access to two types of lights to provide their customers, an LED fixture, and a fluorescence lamp. The LED light uses 5 units of electricity per hour and needs to be changed 3 times a decade. Conversely, the fluorescence lamp uses 8 units of electricity per hour and needs to be changed 4 times a decade. Due to previous installations, at least 30% implemented lights must be fluorescence lamps. If the customer requires at least 300 light fixtures and can use at most 2000 units of electricity, how many of each light should be installed to reduce the total number of light changes?",
+        "ground_truth": 990.0,
+        "formulation": null,
+        "correct_program": "import gurobipy as gp\nfrom gurobipy import GRB\n\n\ndef optimize_lighting(min_total_fixtures=300,\n                      max_electricity=2000,\n                      led_electricity=5,\n                      fluorescence_electricity=8,\n                      led_changes=3,\n                      fluorescence_changes=4,\n                      fluorescence_ratio=0.3):\n    # Create a new model\n    m = gp.Model(\"LightingOptimization\")\n\n    # Decision variables: number of fixtures\n    x_LED = m.addVar(vtype=GRB.INTEGER, lb=0, name=\"x_LED\")\n    x_F = m.addVar(vtype=GRB.INTEGER, lb=0, name=\"x_F\")\n\n    # Set objective: minimize total changes\n    total_changes = led_changes * x_LED + fluorescence_changes * x_F\n    m.setObjective(total_changes, GRB.MINIMIZE)\n\n    # Add constraints\n    # 1. Minimum total fixtures\n    m.addConstr(x_LED + x_F >= min_total_fixtures, \"MinFixtures\")\n\n    # 2. Electricity consumption limit\n    m.addConstr(\n        led_electricity * x_LED + fluorescence_electricity * x_F\n        <= max_electricity, \"ElectricityLimit\")\n\n    # 3. Fluorescence proportion constraint\n    # x_F >= 0.3 * (x_LED + x_F)\n    # Rearranged: 0.7 * x_F >= 0.3 * x_LED\n    m.addConstr(0.7 * x_F >= 0.3 * x_LED, \"FluorescenceRatio\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        return m.objVal\n    else:\n        return None\n\n# Example usage\nif __name__ == \"__main__\":\n    result = optimize_lighting()\n    print(f\"Optimal total changes: {result}\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "MILP",
+                "industry_sector": "Manufacturing",
+                "reason": "The problem involves allocating a limited budget of electricity and minimum total fixtures to two types of lights (LED and fluorescence) to minimize the total number of light changes. The decision variables are integers, and the objective function and constraints are linear, making it a Mixed-Integer Linear Program. The context of a lighting company providing products to customers falls under manufacturing."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A099",
+        "description": "A travelling salesman only eats ramen and fries. Each pack of ramen contains 400 calories, 20 grams of protein, and 100 mg of sodium. Each pack of fries contains 300 calories, 10 grams of protein, and 75 mg of sodium. Since fries are easier to eat while driving, at most 30% of his meals can be ramen. The salesman wants to ensure he eats at least 3000 calories and 80 grams of protein. How many of each should he eat to minimize his sodium intake?",
+        "ground_truth": 750.0,
+        "formulation": null,
+        "correct_program": "def optimize_meal(min_calories=3000, min_protein=80):\n    import gurobipy as gp\n    from gurobipy import GRB\n\n    # Create a new model\n    model = gp.Model(\"MealOptimization\")\n\n    # Decision variables: number of ramen and fries packs\n    R = model.addVar(name=\"R\", lb=0)\n    F = model.addVar(name=\"F\", lb=0)\n\n    # Objective: minimize total sodium intake\n    sodium = 100 * R + 75 * F\n    model.setObjective(sodium, GRB.MINIMIZE)\n\n    # Nutritional constraints\n    model.addConstr(400 * R + 300 * F >= min_calories, name=\"Calories\")\n    model.addConstr(20 * R + 10 * F >= min_protein, name=\"Protein\")\n\n    # Proportion constraint: R <= 0.3*(R+F)\n    # Simplified to 7 R <= 3 F\n    model.addConstr(7 * R <= 3 * F, name=\"RamenProportion\")\n\n    # Optimize the model\n    model.optimize()\n\n    # Check if a feasible solution was found\n    if model.status == GRB.OPTIMAL:\n        # Return the minimal sodium intake\n        return model.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_sodium = optimize_meal()\n    if min_sodium is not None:\n        print(f\"Minimum Sodium Intake: {min_sodium}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Blending",
+                "modeling_type": "LP",
+                "industry_sector": "Food & Beverage",
+                "reason": "The problem involves combining different food items (ramen and fries) to meet nutritional requirements while minimizing a cost (sodium intake), which is characteristic of a blending problem. The model uses continuous variables and linear constraints and objective, making it a Linear Program. The application is directly related to food consumption and nutrition, fitting the Food & Beverage sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A126",
+        "description": "There has been an oil spill in the ocean and ducks need to be taken to shore to be cleaned either by boat or by canoe. A boat can take 10 ducks per trip while a canoe can take 8 ducks per trip. Since the boats are motor powered, they take 20 minutes per trip while the canoes take 40 minutes per trip. In order to avoid further environmental damage, there can be at most 12 boat trips and at least 60% of the trips should be by canoe. If at least 300 ducks need to be taken to shore, how many of each transportation method should be used to minimize the total amount of time needed to transport the ducks?",
+        "ground_truth": 1160.0,
+        "formulation": null,
+        "correct_program": "def optimize_duck_transport():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"DuckTransport\")\n\n    # Decision variables: number of trips\n    x_b = m.addVar(vtype=GRB.INTEGER, name=\"boat_trips\")\n    x_c = m.addVar(vtype=GRB.INTEGER, name=\"canoe_trips\")\n\n    # Set objective: minimize total time\n    m.setObjective(20 * x_b + 40 * x_c, GRB.MINIMIZE)\n\n    # Add constraints\n    # Ducks transported at least 300\n    m.addConstr(10 * x_b + 8 * x_c >= 300, name=\"duck_transport\")\n    # Maximum 12 boat trips\n    m.addConstr(x_b <= 12, name=\"max_boat_trips\")\n    # At least 60% trips are by canoe\n    m.addConstr(2 * x_c >= 3 * x_b, name=\"canoe_ratio\")\n    # Non-negativity (implicitly enforced by variable type)\n    # (Gurobi variables are non-negative by default unless specified otherwise)\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the minimal total time\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_time = optimize_duck_transport()\n    if min_time is not None:\n        print(f\"Minimum Total Time: {min_time}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Environment",
+                "reason": "The problem involves allocating transportation resources (boats and canoes) to minimize time while meeting constraints on duck capacity, boat usage, and canoe trip ratios. The decision variables are integers, and the objective and constraints are linear, making it an Integer Program. The context of an oil spill and duck rescue clearly places it in the environmental sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A124",
+        "description": "A bee farmer transports his honey in small and large bottles. A small bottle can take 5 units of honey while a large bottle can take 20 units of honey. The farmer has available at most 300 small bottles and at most 100 large bottles. In addition, since small bottles are easier to sell, at least twice as many small bottles must be used than large bottles. Finally, he can transport at most 200 bottles total and at least 50 must be large bottles. How many of each bottle should be use to maximize the total amount of honey he can transport?",
+        "ground_truth": 1990.0,
+        "formulation": null,
+        "correct_program": "def optimize_honey_transport():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"HoneyTransport\")\n\n    # Decision variables\n    # x: number of small bottles\n    # y: number of large bottles\n    x = m.addVar(vtype=GRB.INTEGER, name=\"small_bottles\")\n    y = m.addVar(vtype=GRB.INTEGER, name=\"large_bottles\")\n\n    # Set objective: maximize total honey\n    m.setObjective(5 * x + 20 * y, GRB.MAXIMIZE)\n\n    # Add constraints\n    m.addConstr(x <= 300, \"max_small_bottles\")\n    m.addConstr(y <= 100, \"max_large_bottles\")\n    m.addConstr(x >= 2 * y, \"small_at_least_twice_large\")\n    m.addConstr(x + y <= 200, \"total_bottles_limit\")\n    m.addConstr(y >= 50, \"min_large_bottles\")\n    m.addConstr(x >= 0, \"non_negative_small\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the maximum total honey transported\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    max_honey = optimize_honey_transport()\n    if max_honey is not None:\n        print(f\"Maximum Honey Transported: {max_honey}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Agriculture",
+                "reason": "The problem involves allocating available bottles (resources) to maximize the amount of honey transported, which is a classic resource allocation problem. The solver uses integer variables and linear constraints to define the problem, which is characteristic of an Integer Program. The context of a bee farmer and honey transportation clearly places it within the agriculture sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A034",
+        "description": "A teddy bear company produces three different colored bears: black, white, and brown. These bears are made in two different factories. Running factory 1 for 1 hour costs $300 and produces 5 black teddy bears, 6 white teddy bears, and 3 brown ones. Running factory 2 for 1 hour costs $600 and produces 10 black teddy bears and 10 white teddy bears. (but no brown ones). To meet children's demand, at least 20 black teddy bears, 5 white teddy bears, and 15 brown teddy bears must be made daily. Given this information, develop a linear programming problem assuming the teddy bear company wants to minimize the cost of production.",
+        "ground_truth": 1500.0,
+        "formulation": null,
+        "correct_program": "def optimize_teddy_bears():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"TeddyBearProduction\")\n\n    # Decision variables: hours factory 1 and factory 2\n    x1 = m.addVar(name=\"Factory1_hours\", lb=0)\n    x2 = m.addVar(name=\"Factory2_hours\", lb=0)\n\n    # Set the objective: minimize total cost\n    m.setObjective(300 * x1 + 600 * x2, GRB.MINIMIZE)\n\n    # Add constraints based on demand\n    m.addConstr(5 * x1 + 10 * x2 >= 20, name=\"BlackDemand\")\n    m.addConstr(6 * x1 + 10 * x2 >= 5, name=\"WhiteDemand\")\n    m.addConstr(3 * x1 >= 15, name=\"BrownDemand\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        return m.objVal\n    else:\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_cost = optimize_teddy_bears()\n    if min_cost is not None:\n        print(f\"Minimum Cost of Teddy Bear Production: {min_cost}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Production Planning",
+                "modeling_type": "LP",
+                "industry_sector": "Manufacturing",
+                "reason": "The problem involves determining the optimal production levels (hours for each factory) to meet demand while minimizing cost, which is a classic production planning scenario. The model uses continuous variables and linear objective/constraints, making it a Linear Program."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A150",
+        "description": "A jam company sends its product out in small and large jars. A small jar can hold 50 ml of jam while a large jar can hold 200 ml of jam. Most store prefer the smaller size and so the number of large jars cannot exceed the number of small jars. If the company wants to ship at least 100000 ml of jam, find the minimum number of jars that can be used.",
+        "ground_truth": 800.0,
+        "formulation": null,
+        "correct_program": "import gurobipy as gp\nfrom gurobipy import GRB\n\ndef minimize_jars(volume_threshold=100000, small_jar_ml=50, large_jar_ml=200):\n    \"\"\"\n    Finds the minimum total number of jars (small + large) needed to ship at least\n    'volume_threshold' ml of jam, with the constraint that the number of large jars\n    cannot exceed the number of small jars.\n    \n    Args:\n        volume_threshold (int): Minimum total volume of jam to ship (default: 100000 ml).\n        small_jar_ml (int): Volume of jam in a small jar (default: 50 ml).\n        large_jar_ml (int): Volume of jam in a large jar (default: 200 ml).\n        \n    Returns:\n        int or None: The minimum total number of jars if feasible, else None.\n    \"\"\"\n    # Create a new model\n    model = gp.Model(\"Minimize_Jars\")\n    \n    # Decision variables: number of small and large jars\n    x = model.addVar(name=\"small_jars\", vtype=GRB.INTEGER, lb=0)\n    y = model.addVar(name=\"large_jars\", vtype=GRB.INTEGER, lb=0)\n    \n    # Set objective: minimize total jars\n    model.setObjective(x + y, GRB.MINIMIZE)\n    \n    # Add constraints\n    # Volume constraint\n    model.addConstr(small_jar_ml * x + large_jar_ml * y >= volume_threshold, \"volume_constraint\")\n    # Preference constraint\n    model.addConstr(y <= x, \"preference_constraint\")\n    \n    # Optimize the model\n    model.optimize()\n    \n    # Check if a feasible solution was found\n    if model.status == GRB.OPTIMAL:\n        total_jars = int(x.X + y.X)\n        return total_jars\n    else:\n        return None\n# Example usage \nif __name__ == \"__main__\":\n    min_jars = minimize_jars()\n    if min_jars is not None:\n        print(f\"Minimum Total Jars: {min_jars}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Manufacturing",
+                "reason": "The problem involves allocating production capacity (jars) to meet a minimum volume requirement while minimizing the total number of jars, which is a classic resource allocation problem. The decision variables (number of small and large jars) must be integers, leading to an Integer Programming (IP) model. The context of a 'jam company' producing and shipping its product clearly falls under the manufacturing sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A094",
+        "description": "A pharmacy has two factories, factory 1 and factory 2, where they make acne cream and anti-bacterial cream. Factory 1 produces 12 units of acne cream and 15 units of anti-bacterial cream per hour. Factory 2 produces 20 units of acne cream and 10 units of anti-bacterial cream per hour. Factory 1 requires 30 units of base gel per hour while factory 2 requires 45 units of base gel per hour. The pharmacy has available 5000 units of base gel. Further, they must make at least 800 units of acne cream and 1000 units of anti-bacterial cream. How many hours should each factory be run to minimize the total time needed?",
+        "ground_truth": 40.0,
+        "formulation": null,
+        "correct_program": "def optimize_factory_hours():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"FactoryOptimization\")\n\n    # Decision variables: hours each factory runs\n    t1 = m.addVar(name=\"t1\", lb=0)\n    t2 = m.addVar(name=\"t2\", lb=0)\n    max_hour = m.addVar(name=\"max_hour\", lb=0)\n\n    # Set the objective: minimize total hours\n    m.setObjective(max_hour, GRB.MINIMIZE)\n\n    # Add constraints\n    # Acne cream production constraint\n    m.addConstr(12 * t1 + 20 * t2 >= 800, name=\"AcneProduction\")\n    # Anti-bacterial cream production constraint\n    m.addConstr(15 * t1 + 10 * t2 >= 1000, name=\"AntiBacterialProduction\")\n    # Base gel resource constraint\n    m.addConstr(30 * t1 + 45 * t2 <= 5000, name=\"BaseGelLimit\")\n    # Maximum hours constraint\n    m.addConstr(t1 <= max_hour, name=\"MaxHoursT1\")\n    m.addConstr(t2 <= max_hour, name=\"MaxHoursT2\")\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal total hours\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n\n# Example usage\nprint(optimize_factory_hours())",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Production Planning",
+                "modeling_type": "LP",
+                "industry_sector": "Manufacturing",
+                "reason": "The problem involves determining optimal production levels (factory operating hours) to meet demand and resource constraints, which is a classic Production Planning problem. The model uses linear objective and constraints with continuous variables, classifying it as a Linear Program. The context of factories producing creams falls under the Manufacturing sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A123",
+        "description": "A chocolate company can transport their boxes of chocolate either using their own vans or by renting trucks. Their vans can transport 50 boxes per trip while a truck can transport 80 boxes per trip. Since they own their vans, the cost per van trip is $30 while the cost per truck trip is $50. The company needs to transport at least 1500 boxes of chocolate and they have a budget of $1000. Since the vans also provide advertising, the number of trips by van must be larger than the number of trips by trucks. How many of trip by each should be done to minimize the total number of trips?",
+        "ground_truth": 24.0,
+        "formulation": null,
+        "correct_program": "def optimize_trips():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"Chocolate_Transport\")\n\n    # Decision variables: number of van trips (x) and truck trips (y)\n    # Both are integers and >= 0\n    x = m.addVar(vtype=GRB.INTEGER, name=\"van_trips\")\n    y = m.addVar(vtype=GRB.INTEGER, name=\"truck_trips\")\n\n    # Set the objective: minimize total number of trips\n    m.setObjective(x + y, GRB.MINIMIZE)\n\n    # Add capacity constraint: at least 1500 boxes transported\n    m.addConstr(50 * x + 80 * y >= 1500, name=\"capacity_constraint\")\n\n    # Add budget constraint: total cost <= 1000\n    m.addConstr(30 * x + 50 * y <= 1000, name=\"budget_constraint\")\n\n    # Add trip comparison constraint: van trips > truck trips\n    # Since Gurobi does not support strict inequalities directly,\n    # we model x > y as x >= y + 1\n    m.addConstr(x >= y + 1, name=\"trip_comparison\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the minimal total number of trips\n        return m.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_trips = optimize_trips()\n    if min_trips is not None:\n        print(f\"Minimum Total Trips: {min_trips}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Logistics",
+                "reason": "The problem involves allocating resources (van and truck trips) to satisfy demand and budget constraints while minimizing total trips. The decision variables are integers, making it an Integer Programming problem. The application is focused on the movement of goods, which falls under logistics."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A012",
+        "description": "An art store makes large and small art pieces. The store has available 100 units of paint, 50 units of glitter, and 70 units of glue. To make a large art piece requires 4 units of paint, 3 units of glitter, and 5 units of glue. To make a small art piece requires 2 units of paint, 1 unit of glitter, and 2 units of glue. The store must make at least 5 units of each large and small art pieces. If the profit per large art piece is $30 and the profit per small art piece is $15, how many of each should be made to maximize profit?",
+        "ground_truth": 480.0,
+        "formulation": null,
+        "correct_program": "def optimize_art_production(\n    paint_available=100,\n    glitter_available=50,\n    glue_available=70,\n    min_large=5,\n    min_small=5,\n    profit_large=30,\n    profit_small=15\n):\n    import gurobipy as gp\n    from gurobipy import GRB\n\n    # Create a new model\n    model = gp.Model(\"Art_Production_Maximize_Profit\")\n\n    # Decision variables: number of large and small art pieces\n    x = model.addVar(vtype=GRB.INTEGER, name=\"Large_Art\", lb=min_large)\n    y = model.addVar(vtype=GRB.INTEGER, name=\"Small_Art\", lb=min_small)\n\n    # Set the objective: maximize profit\n    model.setObjective(profit_large * x + profit_small * y, GRB.MAXIMIZE)\n\n    # Add material constraints\n    model.addConstr(4 * x + 2 * y <= paint_available, \"Paint_Constraint\")\n    model.addConstr(3 * x + y <= glitter_available, \"Glitter_Constraint\")\n    model.addConstr(5 * x + 2 * y <= glue_available, \"Glue_Constraint\")\n\n    # Optimize the model\n    model.optimize()\n\n    # Check if a feasible solution was found\n    if model.status == GRB.OPTIMAL:\n        # Return the maximum profit\n        return model.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    max_profit = optimize_art_production()\n    if max_profit is not None:\n        print(f\"Maximum Profit: {max_profit}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "MILP",
+                "industry_sector": "Manufacturing",
+                "reason": "The problem involves allocating limited resources (paint, glitter, glue) to produce different products (large and small art pieces) to maximize profit. The decision variables are integers (number of art pieces), and the objective and constraints are linear, classifying it as a Mixed-Integer Linear Program. The context of making art pieces from raw materials fits within the manufacturing sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A127",
+        "description": "A soda company sends bottles of their soda to stores around the city in old and new vans. An old van can take 100 soda bottles while a new van can take 80 soda bottles. An old van produces 50 units of pollution while a new van only produces 30 units of pollution. The company needs to send at least 5000 bottles. In addition, at most 30 new vans can be used. How many of each van should be used to minimize the total amount of pollution produced?",
+        "ground_truth": 2200.0,
+        "formulation": null,
+        "correct_program": "def optimize_vans():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"Vans Pollution Minimization\")\n\n    # Decision variables\n    # x: number of old vans\n    # y: number of new vans\n    x = m.addVar(vtype=GRB.INTEGER, name=\"OldVans\", lb=0)\n    y = m.addVar(vtype=GRB.INTEGER, name=\"NewVans\", lb=0)\n\n    # Set objective: minimize total pollution\n    m.setObjective(50 * x + 30 * y, GRB.MINIMIZE)\n\n    # Add constraints\n    # Capacity constraint\n    m.addConstr(100 * x + 80 * y >= 5000, \"Capacity\")\n    # Max number of new vans\n    m.addConstr(y <= 30, \"MaxNewVans\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal total pollution\n        return m.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_pollution = optimize_vans()\n    if min_pollution is not None:\n        print(f\"Minimum Total Pollution: {min_pollution}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Logistics",
+                "reason": "The problem involves allocating a limited number of old and new vans (resources) to meet a demand for soda bottles while minimizing pollution. The decision variables are integers, and the objective function and constraints are linear, classifying it as an Integer Program. The application is focused on the transportation and delivery of goods, which falls under logistics."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A089",
+        "description": "A sailor can eat either a crab cakes or a lobster roll for his meals. He needs to ensure he gets at least 80 units of vitamin A and 100 units of vitamin C. Each crab cake contains 5 units of vitamin A and 7 units of vitamin C. Each lobster roll contains 8 units of vitamin A and 4 units of vitamin C. In addition, since lobster is more expensive, at most 40% of his meals should be lobster rolls. If each crab cake contains 4 units of unsaturated fat and each lobster roll contains 6 units of unsaturated fat, how many of each should he eat to minimize his unsaturated fat intake?",
+        "ground_truth": 64.0,
+        "formulation": null,
+        "correct_program": "def optimize_meal_plan():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"MealOptimization\")\n\n    # Decision variables: number of crab cakes and lobster rolls\n    x = m.addVar(name=\"crab_cakes\", lb=0, vtype=GRB.INTEGER)\n    y = m.addVar(name=\"lobster_rolls\", lb=0, vtype=GRB.INTEGER)\n\n    # Set the objective: minimize total unsaturated fat\n    m.setObjective(4 * x + 6 * y, GRB.MINIMIZE)\n\n    # Add vitamin A constraint\n    m.addConstr(5 * x + 8 * y >= 80, name=\"VitaminA\")\n    # Add vitamin C constraint\n    m.addConstr(7 * x + 4 * y >= 100, name=\"VitaminC\")\n    # Add meal composition constraint (lobster at most 40%)\n    m.addConstr(y <= (2/3) * x, name=\"LobsterRatio\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal objective value\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_fat = optimize_meal_plan()\n    if min_fat is not None:\n        print(f\"Minimum Total Unsaturated Fat: {min_fat}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Diet Problem",
+                "modeling_type": "MILP",
+                "industry_sector": "Health",
+                "reason": "The problem involves selecting food items (crab cakes, lobster rolls) to meet nutritional requirements (vitamins A and C) while minimizing a cost (unsaturated fat), which is a classic Diet Problem. The solver uses integer variables and linear constraints, making it a Mixed-Integer Linear Program (MILP). The application directly relates to nutrition and well-being, hence 'Health'."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A059",
+        "description": "A crepe store sells chocolate and peanut butter crepes. A chocolate crepe requires 3 units of chocolate spread and 6 units of crepe mix. A peanut butter crepe requires 4 units of peanut butter spread and 7 units of crepe mix. Recently, the peanut butter crepe has been more popular and therefore the number of peanut butter crepes made must exceed the number of chocolate crepes made. However at least 25% of the crepes made should be chocolate. The store has available 400 units of chocolate spread and 450 units of peanut butter spread. How many of each should the store make to minimize the total amount of crepe mix needed?",
+        "ground_truth": 20.0,
+        "formulation": null,
+        "correct_program": "def optimize_crepe_production():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"Crepe_Production\")\n\n    # Decision variables: number of chocolate and peanut butter crepes\n    C = m.addVar(name=\"Chocolate_Crepes\", vtype=GRB.INTEGER, lb=0)\n    P = m.addVar(name=\"Peanut_Butter_Crepes\", vtype=GRB.INTEGER, lb=0)\n\n    # Set objective: minimize total crepe mix\n    m.setObjective(6 * C + 7 * P, GRB.MINIMIZE)\n\n    # Add constraints\n    m.addConstr(3 * C <= 400, name=\"Chocolate_Spread_Limit\")\n    m.addConstr(4 * P <= 450, name=\"Peanut_Butter_Spread_Limit\")\n    m.addConstr(P >= C + 1, name=\"Popularity_Preference\")\n    m.addConstr(P <= 3 * C, name=\"Percentage_Constraint\")\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal total crepe mix used\n        return m.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_crepe_mix = optimize_crepe_production()\n    if min_crepe_mix is not None:\n        print(f\"Minimum Total Crepe Mix Used: {min_crepe_mix}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Production Planning",
+                "modeling_type": "MILP",
+                "industry_sector": "Retail",
+                "reason": "The problem involves determining the optimal quantities of two products (crepes) to produce given resource constraints and demand preferences, which is a classic production planning scenario. The solver uses integer variables and linear constraints with a linear objective function, classifying it as a Mixed-Integer Linear Program. The application is for a crepe store, which falls under the retail sector."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A045",
+        "description": "A city employs seasonal and permanent snow removers. A seasonal snow remover works 6 hours per shift and gets paid $120. A permanent snow remover works 10 hours per shift and gets paid $250. Currently the city needs 300 hours of snow remover labor after a heavy snowfall. If the city has a budget of $6500, how many of each type of worker should be hired to minimize the total number of snow removers?",
+        "ground_truth": 44.0,
+        "formulation": null,
+        "correct_program": "def optimize_snow_removers():\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"SnowRemovers\")\n\n    # Decision variables: number of seasonal and permanent workers\n    x = m.addVar(vtype=GRB.INTEGER, name=\"Seasonal\")\n    y = m.addVar(vtype=GRB.INTEGER, name=\"Permanent\")\n\n    # Set the objective: minimize total number of workers\n    m.setObjective(x + y, GRB.MINIMIZE)\n\n    # Add constraints\n    # Labor hours constraint\n    m.addConstr(6 * x + 10 * y >= 300, name=\"LaborHours\")\n    # Budget constraint\n    m.addConstr(120 * x + 250 * y <= 6500, name=\"Budget\")\n    # Non-negativity constraints are implicit for integer variables in Gurobi\n\n    # Optimize the model\n    m.optimize()\n\n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the optimal total number of workers\n        return m.objVal\n    else:\n        # No feasible solution\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    min_workers = optimize_snow_removers()\n    if min_workers is not None:\n        print(f\"Minimum Total Number of Workers: {min_workers}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Public Services",
+                "reason": "The problem involves allocating two types of snow removers (resources) to meet labor hour demands within a budget, aiming to minimize the total number of workers. The decision variables are integers, and the objective and constraints are linear, fitting an Integer Programming model. The application is clearly within city operations for snow removal, which falls under public services."
+            }
+        ],
+        "cluster": null
+    },
+    {
+        "task_id": "A187",
+        "description": "A repairman fixes washing machines and freezers. Each washing machine takes 30 minutes of inspection and 90 minutes of fixing time. Each freezer takes 20 minutes of inspection and 125 minutes of fixing time. The repairman has 5000 minutes available for inspection and 20000 minutes available in his schedule. If each washing machine repaired earns him $250 and each freezer repaired earns his $375, how many of each appliance should he fix to maximize his earnings?",
+        "ground_truth": 60000.0,
+        "formulation": null,
+        "correct_program": "def optimize_repair_schedule(\n    max_inspection_time=5000,\n    max_fixing_time=20000,\n    profit_washing=250,\n    profit_freezer=375,\n    inspection_time_washing=30,\n    inspection_time_freezer=20,\n    fixing_time_washing=90,\n    fixing_time_freezer=125\n):\n    from gurobipy import Model, GRB\n\n    # Create a new model\n    m = Model(\"ApplianceRepairOptimization\")\n    \n    # Decision variables: number of washing machines and freezers repaired\n    x = m.addVar(vtype=GRB.INTEGER, name=\"WashingMachines\", lb=0)\n    y = m.addVar(vtype=GRB.INTEGER, name=\"Freezers\", lb=0)\n    \n    # Set the objective: maximize profit\n    m.setObjective(profit_washing * x + profit_freezer * y, GRB.MAXIMIZE)\n    \n    # Add constraints\n    # Inspection time constraint\n    m.addConstr(inspection_time_washing * x + inspection_time_freezer * y <= max_inspection_time, \"InspectionTime\")\n    # Fixing time constraint\n    m.addConstr(fixing_time_washing * x + fixing_time_freezer * y <= max_fixing_time, \"FixingTime\")\n    \n    # Optimize the model\n    m.optimize()\n    \n    # Check if a feasible solution was found\n    if m.status == GRB.OPTIMAL:\n        # Return the maximum profit\n        return m.objVal\n    else:\n        # No feasible solution found\n        return None\n# Example usage\nif __name__ == \"__main__\":\n    max_profit = optimize_repair_schedule()\n    if max_profit is not None:\n        print(f\"Maximum Profit: ${max_profit}\")\n    else:\n        print(\"No feasible solution found.\")",
+        "output_status": [],
+        "success_count": 0,
+        "success_confidence": 0,
+        "fail_to_diagnose": 0,
+        "fail_to_verify": 0,
+        "retrieved_insights": [],
+        "tag": [
+            {
+                "problem_domain": "Resource Allocation",
+                "modeling_type": "IP",
+                "industry_sector": "Services",
+                "reason": "The problem involves allocating limited resources (inspection and fixing time) to different activities (repairing washing machines and freezers) to maximize an objective (profit). The decision variables (number of appliances) must be integers, making it an Integer Programming problem. The application is a repairman's service business."
+            }
+        ],
+        "cluster": null
+    }
+]
