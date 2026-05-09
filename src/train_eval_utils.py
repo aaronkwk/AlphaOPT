@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import time
 import json
 
@@ -557,7 +558,7 @@ def execute_code(code_str, timeout_sec=400):
     try:
         # Using subprocess to execute the code as a separate process
         result = subprocess.run(
-            ["python", "-u", "-"], 
+            [sys.executable, "-u", "-"],
             input=code_str,
             text=True, 
             capture_output=True, 

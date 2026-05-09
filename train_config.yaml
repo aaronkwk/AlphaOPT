@@ -1,5 +1,7 @@
-base_model: google/gemini-2.5-flash  
-advanced_model: google/gemini-2.5-flash
+# base_model: google/gemini-2.5-flash  
+# advanced_model: google/gemini-2.5-flash
+base_model: openai/gpt-oss-120b:free  
+advanced_model: openai/gpt-oss-120b:free
 base_service: openrouter # null for direct API calls
 advanced_service: openrouter
 verbose: false
@@ -20,11 +22,11 @@ params:
   max_verify_attempts: 3
   variant_num: 5  # the number of refined condition 
   
-dataset: train_data_4o_new_300 
-output_folder: train_data_300_flash_latest 
+dataset: nlp4lp 
+output_folder: train_data_nlp4lp_flash_latest 
 file_paths:
-  train_data_path: ./data/optimization_tasks/train/${dataset}.json
-  train_output_dir: ./learning/${output_folder}/
+  train_data_path: ./data/optimization_tasks/split/train_data/${dataset}_train.json
+  train_output_dir: ./learning/${output_folder}
   lib_dir: ./data/experience_library/iterations/${output_folder}/
   metrics_log_path: ./learning/${output_folder}/iteration_metrics.json
 
