@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 #* Configure
 from omegaconf import OmegaConf
-config = OmegaConf.load("train_config.yaml")
+config = OmegaConf.load(os.path.join(os.path.dirname(__file__), "..", "train_config.yaml"))
 
 
 # ==== Global token usage tracker ====
