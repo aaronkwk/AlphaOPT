@@ -6,7 +6,7 @@ base_service: openrouter # null for direct API calls
 advanced_service: openrouter
 verbose: false
 start_iter: 0
-data_slice: [0, 60]
+data_slice:
 
 # API Keys
 api_keys:
@@ -22,8 +22,8 @@ params:
   max_verify_attempts: 3
   variant_num: 5  # the number of refined condition 
   
-dataset: nl4opt 
-output_folder: train_data_nl4opt_flash_latest 
+dataset: industryor 
+output_folder: train_data_industryor_flash_latest 
 file_paths:
   train_data_path: ./data/optimization_tasks/split/train_data/${dataset}_train.json
   train_output_dir: ./learning/${output_folder}

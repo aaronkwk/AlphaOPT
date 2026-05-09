@@ -1,7 +1,7 @@
-datasets: [nl4opt]   # [nlp4lp, nl4opt, industryor, mamo_complex]  # [logior, optibench] [nlp4lp, nl4opt, industryor, mamo_complex]
-data_path_template:  ./data/optimization_tasks/split/test_data/${dataset}_test_small.json 
+datasets: [industryor]   # [nlp4lp, nl4opt, industryor, mamo_complex]  # [logior, optibench] [nlp4lp, nl4opt, industryor, mamo_complex]
+data_path_template:  ./data/optimization_tasks/split/test_data/${dataset}_test.json 
 # library_path:  ./data/experience_library/iterations/train_data_all_explore_4o/library_refine_iter4.json
-library_path: ./data/experience_library/iterations/train_data_nl4opt_flash_latest/library_refine_iter1.json
+library_path: ./data/experience_library/iterations/train_data_industryor_flash_latest/library_refine_iter1.json
 output_folder_template: ${dataset}_raw_4o
 model: openai/gpt-oss-120b:free 
 service: openrouter # null
