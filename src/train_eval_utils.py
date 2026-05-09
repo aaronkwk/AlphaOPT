@@ -377,8 +377,8 @@ def save_checkpoint(library, tasks, metrics, paths, suffix):
         tasks.save_as_json(f"{paths.train_output_dir}/train_tasks_record_{suffix}.json")
     if metrics:
         # Save iteration metrics log
-        with open(paths.metrics_log_path, "w") as f:
-            json.dump(metrics, f, indent=2)
+        with open(paths.metrics_log_path, "w", encoding="utf-8") as f:
+            json.dump(metrics, f, indent=2, ensure_ascii=False)
 
 
 def print_training_metrics_summary(metrics_log):

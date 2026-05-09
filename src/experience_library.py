@@ -184,15 +184,15 @@ class ExperienceLibrary:
         Save the current library to a JSON file
         """
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w") as f:
-            json.dump(self.to_json(), f, indent=2)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(self.to_json(), f, indent=2, ensure_ascii=False)
 
     def save_taxonomy(self, path: str):
         """
         Save the current taxonomy to a JSON file
         """
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(self.taxonomy, f, indent=2, ensure_ascii=False)
         
     def update_usage(self, insight_ids: list, success: bool):

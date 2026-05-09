@@ -480,8 +480,8 @@ def evaluate_single_dataset(config: Any, dataset: str) -> dict:
     )
 
     # Save the updated log
-    with open(results_path, "w") as f:
-        json.dump(all_results, f, indent=2)
+    with open(results_path, "w", encoding="utf-8") as f:
+        json.dump(all_results, f, indent=2, ensure_ascii=False)
     
     # Restore output folder to base (avoid surprising callers)
     dataset_config.output_folder = base_output_folder

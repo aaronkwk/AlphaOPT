@@ -445,7 +445,7 @@ class LibraryRetrieval:
                 "matched_insights": matched_insights
                 }
                 matched_insights_path = f"{output_path}/Diagnosis/matched_insights_iter_{iter}_idx_{idx}.json"
-                with open(matched_insights_path, "w") as fout:
+                with open(matched_insights_path, "w", encoding="utf-8") as fout:
                     json.dump(task_matched_insights, fout, indent=2, ensure_ascii=False)
                 
                 # Save the applicable insights
