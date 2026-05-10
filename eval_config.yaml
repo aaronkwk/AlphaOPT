@@ -14,7 +14,7 @@ ablation:
   rewrite: false # true              # Whether to enable insight rewriting
   include_example: true       # Whether to include insight examples
   include_program_insight: true  # Whether to include code implementation insight
-  max_debug_retry: 5          # Whether to enable self-debug and number of times
+  max_debug_retry: 3          # Whether to enable self-debug and number of times
 
   # Ablation
   # When enabled, runs evaluation by setting each of the following params to false one at a time,
