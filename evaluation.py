@@ -138,7 +138,7 @@ def evaluate(
     
     output_dirs = [f"testing/{output_folder}/task_{task.id}" for task in tasks]
     # Use ThreadPoolExecutor to process tasks concurrently
-    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         results = list(tqdm(executor.map(process_task, tasks, output_dirs), total=len(tasks), desc="Evaluating\n"))
 
     # Calculate the number of successes and successful executions from the results
